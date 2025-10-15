@@ -2,7 +2,10 @@ import 'package:chat_flutter/models/auth_form_data.dart';
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
-  const AuthForm({super.key});
+  final void Function(AuthFormData) onSubmit;
+
+
+  const AuthForm({super.key, required this.onSubmit});
 
   @override
   State<AuthForm> createState() => _AuthFormState();
@@ -14,8 +17,16 @@ class _AuthFormState extends State<AuthForm> {
   final _formData = AuthFormData();
 
   void _submit() {
-    _formKey.currentState?.validate();
+    final isValid = _formKey.currentState?.validate() ?? false;
+
+    if (!isValid) return;
+
+    widget.onSubmit(_formData);
   }
+
+  final RegExp emailRegex = RegExp(
+    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +43,14 @@ class _AuthFormState extends State<AuthForm> {
                   key: ValueKey('name'),
                   initialValue: _formData.name,
                   onChanged: (name) => _formData.name = name,
+                  // Retorna uma string em caso de erro e null se sucesso.
+                  validator: (String? value) {
+                    final name = value ?? '';
+                    if (name.trim().length < 5) {
+                      return 'Nome deve ter no mínimo 5 caracteres.';
+                    }
+                    return null;
+                  },
                   decoration: InputDecoration(labelText: 'Nome'),
                 ),
 
@@ -39,12 +58,29 @@ class _AuthFormState extends State<AuthForm> {
                 key: ValueKey('email'),
                 initialValue: _formData.email,
                 onChanged: (email) => _formData.email = email,
+                validator: (value) {
+                  final email = value ?? '';
+                  if (email.trim().isEmpty) {
+                    return 'Por favor, insira um e-mail.';
+                  }
+                  if (!emailRegex.hasMatch(email)) {
+                    return 'E-mail informado não é válido';
+                  }
+                  return null;
+                },
                 decoration: InputDecoration(labelText: 'E-mail'),
               ),
               TextFormField(
                 key: ValueKey('password'),
                 initialValue: _formData.password,
-                onChanged: (password) => _formData.password,
+                onChanged: (password) => _formData.password = password,
+                validator: (value) {
+                  final password = value ?? '';
+                  if (password.length < 6) {
+                    return 'Senha deve ter no mínimo 6 caracteres';
+                  }
+                  return null;
+                },
                 obscureText: true,
                 decoration: InputDecoration(labelText: 'Senha'),
               ),
