@@ -1,20 +1,34 @@
+import 'dart:io';
+
 import 'package:chat_flutter/core/models/chat_message.dart';
 import 'package:flutter/material.dart';
 
 class MessageBubble extends StatelessWidget {
+  static final _defaultImage = 'assets/images/avatar.png';
+  
   final ChatMessage message;
   final bool belongsToCurrentUser;
 
   const MessageBubble({
     super.key,
     required this.message,
-    required this.belongsToCurrentUser,
+    required this.belongsToCurrentUser,s
   });
 
-  // Widget _showUserImage(String imageURL) {
-  //   ImageProvider? imageProvider;
-  //   return CircleAvatar(backgroundImage: imageProvider);
-  // }
+  Widget _showUserImage(String imageURL) {
+    ImageProvider? imageProvider;
+    final uri = Uri.parse(imageURL); 
+
+    if(uri.path.contains(_defaultImage)) {
+      imageProvider = AssetImage(_defaultImage);
+    } else if(uri.scheme.contains('http')) {
+      imageProvider = NetworkImage(uri.toString());
+    } else {
+      imageProvider = FileImage(File(uri.toString()));
+    }
+
+    return CircleAvatar(backgroundImage: imageProvider);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +60,7 @@ class MessageBubble extends StatelessWidget {
               margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 8),
 
               child: Column(
+                crossAxisAlignment: belongsToCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   Text(
                     message.userName,
@@ -56,6 +71,7 @@ class MessageBubble extends StatelessWidget {
                   ),
                   Text(
                     message.text,
+                    textAlign: belongsToCurrentUser ? TextAlign.right : TextAlign.left,
                     style: TextStyle(
                       color: belongsToCurrentUser ? Colors.black : Colors.white,
                     ),
@@ -65,12 +81,12 @@ class MessageBubble extends StatelessWidget {
             ),
           ],
         ),
-        // Positioned(
-        //   top: 0,
-        //   left: belongsToCurrentUser ? null : 165,
-        //   right: belongsToCurrentUser ? 165 : null,
-        //   child: _showUserImage(message.userImageURL),
-        // ),
+        Positioned(
+          top: 0,
+          left: belongsToCurrentUser ? null : 165,
+          right: belongsToCurrentUser ? 165 : null,
+          child: _showUserImage(message.userImageURL),
+        ),
       ],
     );
   }
