@@ -1,6 +1,6 @@
 import 'package:chat_flutter/core/models/chat_message.dart';
 import 'package:chat_flutter/core/models/chat_user.dart';
-import 'package:chat_flutter/core/services/chat_mock_service.dart';
+import 'package:chat_flutter/core/services/chat/chat_mock_service.dart';
 
 abstract class ChatService {
   Stream<List<ChatMessage>> messagesStream();

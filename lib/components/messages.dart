@@ -1,7 +1,7 @@
 import 'package:chat_flutter/components/message_bubble.dart';
 import 'package:chat_flutter/core/models/chat_message.dart';
-import 'package:chat_flutter/core/services/auth_services.dart';
-import 'package:chat_flutter/core/services/chat_service.dart';
+import 'package:chat_flutter/core/services/auth/auth_services.dart';
+import 'package:chat_flutter/core/services/chat/chat_service.dart';
 import 'package:chat_flutter/page/loading_page.dart';
 import 'package:flutter/material.dart';
 

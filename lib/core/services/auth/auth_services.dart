@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:chat_flutter/core/models/chat_user.dart';
-import 'package:chat_flutter/core/services/auth_mock_service.dart';
+import 'package:chat_flutter/core/services/auth/auth_mock_service.dart';
 
 abstract class AuthService {
   ChatUser? get currentUser;

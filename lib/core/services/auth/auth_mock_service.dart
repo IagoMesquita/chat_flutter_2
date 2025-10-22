@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:chat_flutter/core/models/chat_user.dart';
-import 'package:chat_flutter/core/services/auth_services.dart';
+import 'package:chat_flutter/core/services/auth/auth_services.dart';
 
 class AuthMockService implements AuthService {
   static final _defaultUser = ChatUser(

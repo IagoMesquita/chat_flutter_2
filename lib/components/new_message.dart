@@ -1,5 +1,5 @@
-import 'package:chat_flutter/core/services/auth_services.dart';
-import 'package:chat_flutter/core/services/chat_service.dart';
+import 'package:chat_flutter/core/services/auth/auth_services.dart';
+import 'package:chat_flutter/core/services/chat/chat_service.dart';
 import 'package:flutter/material.dart';
 
 class NewMessages extends StatefulWidget {

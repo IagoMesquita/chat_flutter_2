@@ -1,7 +1,7 @@
 import 'package:chat_flutter/components/auth_form.dart';
 import 'package:chat_flutter/core/models/auth_form_data.dart';
-import 'package:chat_flutter/core/services/auth_mock_service.dart';
-import 'package:chat_flutter/core/services/auth_services.dart';
+import 'package:chat_flutter/core/services/auth/auth_mock_service.dart';
+import 'package:chat_flutter/core/services/auth/auth_services.dart';
 import 'package:flutter/material.dart';
 
 class AuthPage extends StatefulWidget {
