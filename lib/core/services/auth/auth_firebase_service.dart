@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:chat_flutter/core/models/chat_user.dart';
 import 'package:chat_flutter/core/services/auth/auth_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class AuthFirebaseService implements AuthService {
   final auth = FirebaseAuth.instance;
@@ -59,9 +60,14 @@ class AuthFirebaseService implements AuthService {
 
       if (credential.user == null) return;
 
-      // Se criou, atualiza nome
+      // 1. Upload da foto do usário
+      final imageName = '${credential.user!.uid}.jpg';
+      final imageURL = await _uploadUserImage(image, imageName);
+
+      // 2. Atualiza nome atributos do usuarios
       credential.user?.updateDisplayName(name);
-      // credential.user?.updatePhotoURL(image);
+      credential.user?.updatePhotoURL(imageURL);
+
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
@@ -85,5 +91,16 @@ class AuthFirebaseService implements AuthService {
       email: userFirebase.email!,
       imageUrl: userFirebase.photoURL ?? 'assets/images/avatar.png',
     );
+  }
+
+  Future<String?> _uploadUserImage(File? image, String imageName) async {
+    if (image == null) return null;
+
+    final storage = FirebaseStorage.instance;
+
+    /// [ref()] usando o bucket padrao. [child] podem ser aninhados. ex: user_images/avatar.png
+    final imageRef = storage.ref().child('user_images').child(imageName);
+    await imageRef.putFile(image).whenComplete(() {});
+    return await imageRef.getDownloadURL();
   }
 }
