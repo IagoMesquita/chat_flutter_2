@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "698855023441",
+    "project_id": "cod3r-chatflutter-2025",
+    "storage_bucket": "cod3r-chatflutter-2025.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698855023441:android:851d86713c753020aea970",
+        "android_client_info": {
+          "package_name": "br.com.iago_mesquita.chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-n2ggXG9vIMZ3if6lUED0Oqp5XWBvA-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
