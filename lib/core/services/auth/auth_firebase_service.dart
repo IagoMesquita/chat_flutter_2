@@ -26,7 +26,22 @@ class AuthFirebaseService implements AuthService {
   Stream<ChatUser?> get userChanges => _userStream;
 
   @override
-  Future<void> login(String email, String password) async {}
+  Future<void> login(String email, String password) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+    } catch (e) {
+      print('(Error) AuthFirebaseService:login = $e');
+    }
+  }
 
   @override
   Future<void> signup(
@@ -64,7 +79,7 @@ class AuthFirebaseService implements AuthService {
   }
 
   static ChatUser _toChatUser(User userFirebase) {
-   return ChatUser(
+    return ChatUser(
       id: userFirebase.uid,
       name: userFirebase.displayName ?? userFirebase.email!.split('@')[0],
       email: userFirebase.email!,
