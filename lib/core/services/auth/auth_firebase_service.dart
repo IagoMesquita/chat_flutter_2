@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:chat_flutter/core/models/chat_user.dart';
 import 'package:chat_flutter/core/services/auth/auth_services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
@@ -65,8 +66,11 @@ class AuthFirebaseService implements AuthService {
       final imageURL = await _uploadUserImage(image, imageName);
 
       // 2. Atualiza nome atributos do usuarios
-      credential.user?.updateDisplayName(name);
-      credential.user?.updatePhotoURL(imageURL);
+      await credential.user?.updateDisplayName(name);
+      await credential.user?.updatePhotoURL(imageURL);
+
+      // 3. Salver usuário no firestore. (Opcional noesse projeto)
+      await _saveChatUser(_toChatUser(credential.user!, imageURL));
 
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -84,12 +88,12 @@ class AuthFirebaseService implements AuthService {
     await FirebaseAuth.instance.signOut();
   }
 
-  static ChatUser _toChatUser(User userFirebase) {
+  static ChatUser _toChatUser(User userFirebase, [String? imageURL]) {
     return ChatUser(
       id: userFirebase.uid,
       name: userFirebase.displayName ?? userFirebase.email!.split('@')[0],
       email: userFirebase.email!,
-      imageUrl: userFirebase.photoURL ?? 'assets/images/avatar.png',
+      imageUrl: imageURL ?? userFirebase.photoURL ?? 'assets/images/avatar.png',
     );
   }
 
@@ -102,5 +106,16 @@ class AuthFirebaseService implements AuthService {
     final imageRef = storage.ref().child('user_images').child(imageName);
     await imageRef.putFile(image).whenComplete(() {});
     return await imageRef.getDownloadURL();
+  }
+
+  Future<void> _saveChatUser(ChatUser user) async {
+    final store = FirebaseFirestore.instance;
+    // tabelas -> Collections & registros -> documents
+    final docRef = store.collection('users').doc(user.id);
+    return docRef.set({
+      'name': user.name,
+      'email': user.email,
+      'imageURL': user.imageUrl
+    });
   }
 }
