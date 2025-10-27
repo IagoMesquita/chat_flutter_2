@@ -24,6 +24,7 @@ class ChatNotificationService with ChangeNotifier {
   // Push Notifications (firebase)
   Future<void> init() async {
     _configureForeground();
+    _configureBackground();
   }
 
   Future<bool> get _isAuthorized async {
@@ -35,15 +36,25 @@ class ChatNotificationService with ChangeNotifier {
 
   Future<void> _configureForeground() async {
     if (await _isAuthorized) {
-      FirebaseMessaging.onMessage.listen((msg) {
-        if(msg.notification == null) return;
-        add(
-          ChatNotification(
-            title: msg.notification?.title ?? 'Não informado!',
-            body: msg.notification?.body ?? 'Não informado',
-          ),
-        );
-      });
+      FirebaseMessaging.onMessage.listen(_handleMessage);
     }
+  }
+
+  Future<void> _configureBackground() async {
+    if(await _isAuthorized) {
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+    }
+  }
+
+
+
+  void _handleMessage(RemoteMessage? msg) {
+    if (msg == null || msg.notification == null) return;
+    add(
+      ChatNotification(
+        title: msg.notification?.title ?? 'Não informado!',
+        body: msg.notification?.body ?? '',
+      ),
+    );
   }
 }
