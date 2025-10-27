@@ -6,11 +6,28 @@ import 'package:chat_flutter/core/services/chat/chat_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatFirestoreService implements ChatService {
-  static final _msgsStream = Stream<List<ChatMessage>>.multi((controller) {});
-
   @override
   Stream<List<ChatMessage>> messagesStream() {
-    return Stream<List<ChatMessage>>.empty();
+    final store = FirebaseFirestore.instance;
+    final snapshotChat = store
+        .collection('chat')
+        .withConverter(fromFirestore: _fromFirestore, toFirestore: _toFirestore)
+        .snapshots();
+
+    return snapshotChat.map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return doc.data();
+      }).toList();
+    });
+
+    // (Prefiro essa)Abordagem mais explicita de conversao de  QuerySnapshot<ChatMessage> para List<ChatMessage>  
+    // return Stream<List<ChatMessage>>.multi((controller) {
+    //   snapshotChat.listen((snapshot) {
+    //     final List<ChatMessage> list = snapshot.docs.map((doc) {
+    //       return doc.data();
+    //     }).toList();
+    //   });
+    // });
   }
 
   // Enviando uma model ChatMessage -> Map<String, dynamic> do firestore
@@ -18,6 +35,7 @@ class ChatFirestoreService implements ChatService {
   Future<ChatMessage?> save(String text, ChatUser user) async {
     final store = FirebaseFirestore.instance;
 
+    // Como optou por save enviar apenas um text, temos que montar a estrutura do ChatMessage antes
     final msg = ChatMessage(
       id: '',
       text: text,
@@ -29,7 +47,10 @@ class ChatFirestoreService implements ChatService {
 
     final docRef = await store
         .collection('chat')
-        .withConverter(fromFirestore: _fromFirestore, toFirestore: _toFirestore) // Jã faz a conversao. Depois prefiro fazer usando direto no model.
+        .withConverter(
+          fromFirestore: _fromFirestore,
+          toFirestore: _toFirestore,
+        ) // Jã faz a conversao. Depois prefiro fazer usando direto no model.
         .add(msg);
 
     final docSnapshot = await docRef.get();
@@ -57,7 +78,7 @@ class ChatFirestoreService implements ChatService {
       'createdAt': msg.createdAt.toIso8601String(),
       'userId': msg.userId,
       'userName': msg.userName,
-      'userImageULR': msg.userImageURL,
+      'userImageURL': msg.userImageURL,
     };
   }
 }
