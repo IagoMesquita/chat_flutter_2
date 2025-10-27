@@ -5,6 +5,7 @@ import 'package:chat_flutter/core/models/chat_user.dart';
 import 'package:chat_flutter/core/services/auth/auth_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class AuthFirebaseService implements AuthService {
@@ -53,6 +54,13 @@ class AuthFirebaseService implements AuthService {
     File? image,
   ) async {
     try {
+      // ao fazer login nao e enviar msg, nao estava com imagem e nome atualizados.
+      final signup = await Firebase.initializeApp(
+        name: 'userSignup',
+        options: Firebase.app().options,
+      );
+      final auth = FirebaseAuth.instanceFor(app: signup);
+      
       // Cria user com email e senha
       UserCredential credential = await auth.createUserWithEmailAndPassword(
         email: email,
@@ -68,6 +76,9 @@ class AuthFirebaseService implements AuthService {
       // 2. Atualiza nome atributos do usuarios
       await credential.user?.updateDisplayName(name);
       await credential.user?.updatePhotoURL(imageURL);
+
+      // 2.5 fazer login do usuario
+      await login(email, password);
 
       // 3. Salver usuário no firestore. (Opcional noesse projeto)
       await _saveChatUser(_toChatUser(credential.user!, imageURL));
